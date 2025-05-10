@@ -3,6 +3,7 @@ import type { ISearchRepository, SearchEntity } from "@/domain/search";
 import type { IUserRepository } from "@/domain/user";
 import { DocumentType } from "@/shared/enums";
 import { Command } from "@/shared/utils/command";
+import { ConflictError, NotFoundError } from "@/shared/utils/errors";
 
 type Params = {
   searchId: string;
@@ -71,10 +72,10 @@ export class GetBookingPendenciesCommand extends Command {
     ]);
 
     if (!search) {
-      throw new Error("Search not found");
+      throw new NotFoundError("Search not found");
     }
     if (!user) {
-      throw new Error("User not found");
+      throw new NotFoundError("User not found");
     }
 
     const license = await this.documentRepository.findUserByType(
@@ -91,7 +92,7 @@ export class GetBookingPendenciesCommand extends Command {
     }
 
     if (license.expirationDate < new Date().toISOString()) {
-      throw new Error("License has expired.");
+      throw new ConflictError("License has expired.");
     }
   }
 
@@ -106,13 +107,13 @@ export class GetBookingPendenciesCommand extends Command {
     const endDate = search.getEndDate();
 
     if (license.expirationDate < endDate) {
-      throw new Error("License will expire before the booking.");
+      throw new ConflictError("License will expire before the booking.");
     }
   }
 
   private guardAgainstMissingLicense(license: DocumentEntity | null): void {
     if (!license) {
-      throw new Error("License document not found.");
+      throw new ConflictError("License document not found.");
     }
   }
 }

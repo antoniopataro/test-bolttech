@@ -11,9 +11,11 @@ import { components } from "./booking.styles";
 
 const Component: React.FC = () => {
   const {
+    book,
     getBookingPendencies,
     getCarOffer,
     isLoading,
+    isLoadingBook,
     isLoadingBookingPendencies,
     offer,
     pendencies,
@@ -48,7 +50,14 @@ const Component: React.FC = () => {
       <components.info>You're following with the booking of:</components.info>
       <CarCard car={offer} days={search.getDays()} />
       <BookingPendencies />
-      <Button disabled={!canProceed}>Confirm</Button>
+      <Button
+        disabled={!canProceed || isLoadingBook}
+        onClick={async () => {
+          await book();
+        }}
+      >
+        Confirm
+      </Button>
     </components.root>
   );
 };

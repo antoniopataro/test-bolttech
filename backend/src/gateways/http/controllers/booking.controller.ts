@@ -26,7 +26,9 @@ export class BookingController {
       const data = this.bookingValidator.validateBook(body);
 
       const bookCommand = new BookCommand(
+        this.app.repositories.bookingRepository,
         this.app.repositories.carRepository,
+        this.app.repositories.searchRepository,
         this.app.repositories.userRepository,
       );
 
@@ -35,7 +37,7 @@ export class BookingController {
         userId: user?.id,
       });
 
-      res.status(StatusCode.OK).send(result);
+      res.status(StatusCode.CREATED).send(result);
     } catch (error) {
       errorService.handleError(error);
     }

@@ -1,5 +1,6 @@
 import type { ISearchRepository, Search, SearchEntity } from "@/domain/search";
 import { Command } from "@/shared/utils/command";
+import { NotFoundError } from "@/shared/utils/errors";
 
 type Params = {
   searchId: string;
@@ -42,7 +43,7 @@ export class GetSearchCommand extends Command {
     const search = await this.searchRepository.findById(searchId);
 
     if (!search) {
-      throw new Error("Search not found.");
+      throw new NotFoundError("Search not found.");
     }
 
     return {

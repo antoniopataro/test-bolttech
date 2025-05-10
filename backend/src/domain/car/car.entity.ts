@@ -6,12 +6,12 @@ import type { CarAttributes, CarOffer } from "./car.types";
 
 export class CarEntity {
   private readonly _id: string;
-  private readonly _brand: string;
-  private readonly _model: string;
-  private readonly _priceMidSeason: number;
-  private readonly _priceOffSeason: number;
-  private readonly _pricePeakSeason: number;
-  private readonly _stock: number;
+  private _brand: string;
+  private _model: string;
+  private _priceMidSeason: number;
+  private _priceOffSeason: number;
+  private _pricePeakSeason: number;
+  private _stock: number;
 
   constructor(attributes: CarAttributes) {
     this._id = attributes.id;
@@ -53,8 +53,12 @@ export class CarEntity {
 
   //
 
-  public isAvailable(): boolean {
-    return this._stock > 0;
+  public decreaseStock(): void {
+    if (this._stock === 0) {
+      return;
+    }
+
+    this._stock -= 1;
   }
 
   public getDailyPrice(searchSeasons: SearchSeasons): number {

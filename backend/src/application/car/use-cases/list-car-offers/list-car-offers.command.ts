@@ -1,6 +1,7 @@
 import type { CarEntity, CarOffer, ICarRepository } from "@/domain/car";
 import type { ISearchRepository, SearchEntity } from "@/domain/search";
 import { Command } from "@/shared/utils/command";
+import { NotFoundError } from "@/shared/utils/errors";
 
 type Params = {
   endDate: string;
@@ -56,7 +57,7 @@ export class ListCarOffersCommand extends Command {
     ]);
 
     if (!search) {
-      throw new Error("Search not found.");
+      throw new NotFoundError("Search not found.");
     }
 
     return {

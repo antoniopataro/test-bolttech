@@ -13,6 +13,7 @@ import { bookingService } from "./booking.service";
 import type { BookingPendencies } from "./booking.types";
 
 type Actions = {
+  book: () => Promise<void>;
   getCarOffer: () => Promise<void>;
   getBookingPendencies: () => Promise<void>;
   saveLicense: (data: LicenseFormSchema) => Promise<void>;
@@ -26,6 +27,7 @@ type Props = {
 type State = {
   offer: CarEntity | null;
   isLoading: boolean;
+  isLoadingBook: boolean;
   isLoadingBookingPendencies: boolean;
   isLoadingSaveLicense: boolean;
   pendencies: BookingPendencies | null;
@@ -34,6 +36,7 @@ type State = {
 const initialState: State = {
   offer: null,
   isLoading: false,
+  isLoadingBook: false,
   isLoadingBookingPendencies: false,
   isLoadingSaveLicense: false,
   pendencies: null,
@@ -51,6 +54,32 @@ export const BookingProvider: React.FC<PropsWithChildren<Props>> = ({
   searchId,
 }) => {
   const [state, setState] = useState<State>(initialState);
+
+  const book = useCallback(async () => {
+    setState((prev) => ({
+      ...prev,
+      isLoadingBook: true,
+    }));
+
+    const response = await bookingService.book({
+      offerId,
+      searchId,
+    });
+
+    if (response.isFailure()) {
+      setState((prev) => ({
+        ...prev,
+        isLoadingBook: false,
+      }));
+
+      return;
+    }
+
+    setState((prev) => ({
+      ...prev,
+      isLoadingBook: false,
+    }));
+  }, [offerId, searchId]);
 
   const getBookingPendencies = useCallback(async () => {
     setState((prev) => ({
@@ -134,6 +163,7 @@ export const BookingProvider: React.FC<PropsWithChildren<Props>> = ({
     <BookingContext.Provider
       value={{
         ...state,
+        book,
         getBookingPendencies,
         getCarOffer,
         offerId,

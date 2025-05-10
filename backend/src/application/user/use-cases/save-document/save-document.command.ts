@@ -2,6 +2,7 @@ import type { Document, IDocumentRepository } from "@/domain/document";
 import type { IUserRepository } from "@/domain/user/iuser.repository";
 import type { DocumentType } from "@/shared/enums";
 import { Command } from "@/shared/utils/command";
+import { NotFoundError } from "@/shared/utils/errors";
 
 type Params = {
   expirationDate: string;
@@ -28,7 +29,7 @@ export class SaveDocumentCommand extends Command {
       const user = await this.userRepository.findById(params.userId);
 
       if (!user) {
-        throw new Error("User not found");
+        throw new NotFoundError("User not found");
       }
 
       const document = await this.documentRepository.upsert(params);

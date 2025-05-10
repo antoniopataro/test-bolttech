@@ -21,7 +21,7 @@ export class BookingRouter {
   }
 
   private addRoutes(): void {
-    this.router.post("/book", (req, res) => {
+    this.router.post("/", (req, res) => {
       this.bookingController.book(req, res);
     });
   }

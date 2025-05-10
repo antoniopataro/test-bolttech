@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { CarEntity } from "@/domain/car";
 import { type ICarRepository } from "@/domain/car";
 import { DEFAULT_CARS } from "@/shared/constants";
+import { Mutex } from "@/shared/utils/mutex";
 
 export class InMemoryCarRepository implements ICarRepository {
   private cars: CarEntity[] = [];
@@ -23,6 +24,22 @@ export class InMemoryCarRepository implements ICarRepository {
 
   //
 
+  public async decreaseStockAtomically(id: string): Promise<void> {
+    const car = await this.findById(id);
+
+    if (!car) {
+      return;
+    }
+
+    const mu = new Mutex();
+    await mu.lock();
+
+    car.decreaseStock();
+    await this.save(car);
+
+    mu.unlock();
+  }
+
   public async findAll(): Promise<CarEntity[]> {
     return this.cars;
   }
@@ -35,5 +52,15 @@ export class InMemoryCarRepository implements ICarRepository {
     }
 
     return car;
+  }
+
+  private async save(car: CarEntity): Promise<void> {
+    const index = this.cars.findIndex((c) => c.id === car.id);
+
+    if (index === -1) {
+      this.cars.push(car);
+    } else {
+      this.cars[index] = car;
+    }
   }
 }
