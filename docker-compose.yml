@@ -1,0 +1,37 @@
+networks:
+  default:
+    driver: bridge
+    name: test-bolttech
+
+services:
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: ./dockerfile
+    container_name: test-bolttech-backend
+    env_file:
+      - ./.backend.env
+    hostname: backend
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 12s
+      timeout: 24s
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./frontend/
+      dockerfile: ./dockerfile
+    container_name: test-bolttech-frontend
+    env_file:
+      - ./.frontend.env
+    hostname: frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
