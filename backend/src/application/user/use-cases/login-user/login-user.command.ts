@@ -50,7 +50,9 @@ export class LoginUserCommand extends Command {
   private async getRelatedEntities(
     params: Params,
   ): Promise<{ user: UserEntity }> {
-    const user = await this.userRepository.findByEmail(params.email);
+    const { email } = params;
+
+    const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
       throw new NotFoundError("User with provided email does not exist.");
@@ -65,7 +67,9 @@ export class LoginUserCommand extends Command {
     params: Params,
     user: UserEntity,
   ): Promise<void> {
-    const isCorrectPassword = await user.comparePassword(params.password);
+    const { password } = params;
+
+    const isCorrectPassword = await user.comparePassword(password);
 
     if (!isCorrectPassword) {
       throw new UnauthorizedError("Incorrect password.");

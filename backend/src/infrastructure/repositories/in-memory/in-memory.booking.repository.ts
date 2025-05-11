@@ -27,15 +27,37 @@ export class InMemoryBookingRepository implements IBookingRepository {
     return booking;
   }
 
-  public async listByPeriod(params: {
-    endDate: string;
-    startDate: string;
-  }): Promise<BookingEntity[]> {
+  public async listByOfferId(
+    offerId: string,
+    opts?: { endDate: string; startDate: string },
+  ): Promise<BookingEntity[]> {
+    return this.bookings
+      .filter((booking) => booking.offerId === offerId)
+      .filter((booking) =>
+        opts
+          ? areIntervalsOverlapping(
+              {
+                end: opts.endDate,
+                start: opts.startDate,
+              },
+              {
+                end: booking.endDate,
+                start: booking.startDate,
+              },
+            )
+          : true,
+      );
+  }
+
+  public async listByInterval(
+    startDate: string,
+    endDate: string,
+  ): Promise<BookingEntity[]> {
     return this.bookings.filter((booking) =>
       areIntervalsOverlapping(
         {
-          end: params.endDate,
-          start: params.startDate,
+          end: endDate,
+          start: startDate,
         },
         {
           end: booking.endDate,

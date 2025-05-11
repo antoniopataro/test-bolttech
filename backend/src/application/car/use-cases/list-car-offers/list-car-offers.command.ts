@@ -35,12 +35,24 @@ export class ListCarOffersCommand extends Command {
 
       const { bookings, cars, search } = await this.getRelatedEntities(params);
 
+      const bookingsByOfferId = this.buildBookingsByOfferId(bookings, cars);
+
       this.logFinished();
 
+      const availableCars = cars.filter((car) =>
+        car.isAvailable(bookingsByOfferId[car.id].length),
+      );
+
+      const carOffers = availableCars.map((car) =>
+        car.toCarOffer(
+          bookingsByOfferId[car.id].length,
+          search.calculateDays(),
+          search.calculateSeasons(),
+        ),
+      );
+
       return {
-        cars: cars
-          .filter((car) => car.isAvailable(bookings))
-          .map((car) => car.toCarOffer(bookings, search)),
+        cars: carOffers,
       };
     } catch (error) {
       this.logFailed();
@@ -49,8 +61,23 @@ export class ListCarOffersCommand extends Command {
     }
   }
 
+  private buildBookingsByOfferId(
+    bookings: BookingEntity[],
+    cars: CarEntity[],
+  ): Record<string, BookingEntity[]> {
+    return cars.reduce(
+      (prev, car) => {
+        return {
+          ...prev,
+          [car.id]: bookings.filter((booking) => booking.offerId === car.id),
+        };
+      },
+      {} as Record<string, BookingEntity[]>,
+    );
+  }
+
   private async getRelatedEntities(params: Params): Promise<RelatedEntities> {
-    const { searchId } = params;
+    const { endDate, searchId, startDate } = params;
 
     const [cars, search] = await Promise.all([
       this.carRepository.listAll(),
@@ -61,10 +88,10 @@ export class ListCarOffersCommand extends Command {
       throw new NotFoundError("Search not found.");
     }
 
-    const bookings = await this.bookingRepository.listByPeriod({
-      endDate: params.endDate,
-      startDate: params.startDate,
-    });
+    const bookings = await this.bookingRepository.listByInterval(
+      startDate,
+      endDate,
+    );
 
     return {
       bookings,

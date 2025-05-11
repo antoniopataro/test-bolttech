@@ -38,8 +38,14 @@ export class GetCarOfferCommand extends Command {
 
       this.logFinished();
 
+      const carOffer = car.toCarOffer(
+        bookings.length,
+        search.calculateDays(),
+        search.calculateSeasons(),
+      );
+
       return {
-        car: car.toCarOffer(bookings, search),
+        car: carOffer,
       };
     } catch (error) {
       this.logFailed();
@@ -63,7 +69,7 @@ export class GetCarOfferCommand extends Command {
       throw new NotFoundError("Search not found.");
     }
 
-    const bookings = await this.bookingRepository.listByPeriod({
+    const bookings = await this.bookingRepository.listByOfferId(car.id, {
       endDate: search.endDate,
       startDate: search.startDate,
     });
@@ -79,7 +85,7 @@ export class GetCarOfferCommand extends Command {
     bookings: BookingEntity[],
     car: CarEntity,
   ): void {
-    if (!car.isAvailable(bookings)) {
+    if (!car.isAvailable(bookings.length)) {
       throw new NotFoundError("Car not available.");
     }
   }

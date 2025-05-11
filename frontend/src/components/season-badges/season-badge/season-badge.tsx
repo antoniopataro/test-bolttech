@@ -11,8 +11,10 @@ type Props = {
 export const SeasonBadge: React.FC<Props> = ({ days, season }) => {
   return (
     <components.root>
+      <components.indicator season={season} />
       <components.label>
-        {days} days during {SEASONS_TRANSLATIONS[season]} season
+        {days} {days === 1 ? "day" : "days"} during{" "}
+        {SEASONS_TRANSLATIONS[season]} season
       </components.label>
     </components.root>
   );

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
+import type { CarCreationAttributes } from "@/domain/car";
 import { CarEntity } from "@/domain/car";
 import { type ICarRepository } from "@/domain/car";
 import { DEFAULT_CARS } from "@/shared/constants";
@@ -23,8 +24,14 @@ export class InMemoryCarRepository implements ICarRepository {
 
   //
 
-  public async listAll(): Promise<CarEntity[]> {
-    return this.cars;
+  public async create(data: CarCreationAttributes): Promise<CarEntity> {
+    const car = new CarEntity({
+      ...data,
+      id: uuidv4(),
+    });
+    this.cars.push(car);
+
+    return car;
   }
 
   public async findById(id: string): Promise<CarEntity | null> {
@@ -37,13 +44,7 @@ export class InMemoryCarRepository implements ICarRepository {
     return car;
   }
 
-  private async save(car: CarEntity): Promise<void> {
-    const index = this.cars.findIndex((c) => c.id === car.id);
-
-    if (index === -1) {
-      this.cars.push(car);
-    } else {
-      this.cars[index] = car;
-    }
+  public async listAll(): Promise<CarEntity[]> {
+    return this.cars;
   }
 }

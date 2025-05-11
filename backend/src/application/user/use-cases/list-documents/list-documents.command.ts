@@ -38,7 +38,9 @@ export class ListDocumentsCommand extends Command {
   private async getRelatedEntities(params: Params): Promise<{
     documents: DocumentEntity[];
   }> {
-    const documents = await this.documentRepository.listByUserId(params.userId);
+    const { userId } = params;
+
+    const documents = await this.documentRepository.listByUserId(userId);
 
     return { documents };
   }

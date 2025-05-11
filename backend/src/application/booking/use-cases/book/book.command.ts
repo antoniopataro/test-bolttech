@@ -7,17 +7,16 @@ import type { IUserRepository, UserEntity } from "@/domain/user";
 import { Command } from "@/shared/utils/command";
 import { ConflictError, NotFoundError } from "@/shared/utils/errors";
 
-type Params = {
-  offerId: string;
-  searchId: string;
-  userId: string;
-};
+import type { BookCommandParams } from "./book.command.types";
+
+type Params = BookCommandParams;
 
 type RelatedEntities = {
-  bookings: BookingEntity[];
   car: CarEntity;
+  carBookings: BookingEntity[];
   search: SearchEntity;
   user: UserEntity;
+  userBookings: BookingEntity[];
 };
 
 type Result = {
@@ -25,6 +24,11 @@ type Result = {
 };
 
 export class BookCommand extends Command {
+  public static readonly ERRORS = {
+    BOOKINGS_OVERLAP: "Booking overlap detected.",
+    CAR_UNAVAILABLE: "Car is unavailable.",
+  };
+
   constructor(
     private readonly bookingRepository: IBookingRepository,
     private readonly carRepository: ICarRepository,
@@ -38,11 +42,11 @@ export class BookCommand extends Command {
     try {
       this.logInitiated();
 
-      const { bookings, car, search, user } =
+      const { car, carBookings, search, user, userBookings } =
         await this.getRelatedEntities(params);
 
-      this.guardAgainstBookingsOverlap(bookings, search);
-      this.guardAgainstUnavailableCar(car);
+      this.guardAgainstBookingsOverlap(userBookings, search);
+      this.guardAgainstUnavailableCar(car, carBookings);
 
       await this.bookingRepository.create({
         offerId: car.id,
@@ -65,11 +69,14 @@ export class BookCommand extends Command {
   }
 
   private async getRelatedEntities(params: Params): Promise<RelatedEntities> {
-    const [bookings, car, search, user] = await Promise.all([
-      this.bookingRepository.listByUserId(params.userId),
-      this.carRepository.findById(params.offerId),
-      this.searchRepository.findById(params.searchId),
-      this.userRepository.findById(params.userId),
+    const { offerId, searchId, userId } = params;
+
+    const [car, carBookings, search, user, userBookings] = await Promise.all([
+      this.carRepository.findById(offerId),
+      this.bookingRepository.listByOfferId(offerId),
+      this.searchRepository.findById(searchId),
+      this.userRepository.findById(userId),
+      this.bookingRepository.listByUserId(userId),
     ]);
 
     if (!car) {
@@ -82,7 +89,7 @@ export class BookCommand extends Command {
       throw new NotFoundError("User not found.");
     }
 
-    return { bookings, car, search, user };
+    return { car, carBookings, search, user, userBookings };
   }
 
   private guardAgainstBookingsOverlap(
@@ -103,14 +110,17 @@ export class BookCommand extends Command {
       if (
         areIntervalsOverlapping(newBookingInterval, existingBookingInterval)
       ) {
-        throw new ConflictError("Bookings overlap.");
+        throw new ConflictError(BookCommand.ERRORS.BOOKINGS_OVERLAP);
       }
     }
   }
 
-  private guardAgainstUnavailableCar(car: CarEntity): void {
-    if (car.stock === 0) {
-      throw new ConflictError("Car is unavailable.");
+  private guardAgainstUnavailableCar(
+    car: CarEntity,
+    carBookings: BookingEntity[],
+  ): void {
+    if (!car.isAvailable(carBookings.length)) {
+      throw new ConflictError(BookCommand.ERRORS.CAR_UNAVAILABLE);
     }
   }
 }

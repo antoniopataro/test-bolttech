@@ -1,7 +1,6 @@
 import { Seasons } from "@/shared/enums";
 
-import type { BookingEntity } from "../booking";
-import type { SearchEntity, SearchSeasons } from "../search";
+import type { SearchSeasons } from "../search";
 
 import type { CarAttributes, CarOffer } from "./car.types";
 
@@ -54,60 +53,49 @@ export class CarEntity {
 
   //
 
-  public calculateStock(bookings: BookingEntity[]): number {
-    const bookingsByOfferId = bookings.filter(
-      (booking) => booking.offerId === this._id,
-    );
+  public calculateStock(bookings: number): number {
+    const remainingStock = this._stock - bookings;
 
-    const stock = this._stock - bookingsByOfferId.length;
-
-    return stock < 0 ? 0 : stock;
+    return Math.max(0, remainingStock);
   }
 
-  public decreaseStock(): void {
-    if (this._stock === 0) {
-      return;
+  private getSeasonPrice(season: Seasons, days: number): number {
+    switch (season) {
+      case Seasons.MID:
+        return days * this._priceMidSeason;
+      case Seasons.OFF:
+        return days * this._priceOffSeason;
+      case Seasons.PEAK:
+        return days * this._pricePeakSeason;
+      default:
+        return 0;
     }
-
-    this._stock -= 1;
   }
 
-  public getDailyPrice(searchSeasons: SearchSeasons): number {
-    let price = 0;
-
-    Object.entries(searchSeasons).forEach(([season, { days }]) => {
-      switch (season) {
-        case Seasons.MID:
-          price += days * this._priceMidSeason;
-          break;
-        case Seasons.OFF:
-          price += days * this._priceOffSeason;
-          break;
-        case Seasons.PEAK:
-          price += days * this._pricePeakSeason;
-          break;
-        default:
-          break;
-      }
-    });
-
-    return price;
+  public getTotalPrice(searchSeasons: SearchSeasons): number {
+    return Object.entries(searchSeasons).reduce((total, [season, { days }]) => {
+      return total + this.getSeasonPrice(season as Seasons, days);
+    }, 0);
   }
 
-  public isAvailable(bookings: BookingEntity[]): boolean {
+  public isAvailable(bookings: number): boolean {
     return this.calculateStock(bookings) > 0;
   }
 
-  public toCarOffer(bookings: BookingEntity[], search: SearchEntity): CarOffer {
-    const dailyPrice = this.getDailyPrice(search.calculateSeasons());
+  public toCarOffer(
+    bookings: number,
+    days: number,
+    searchSeasons: SearchSeasons,
+  ): CarOffer {
+    const totalPrice = this.getTotalPrice(searchSeasons);
 
     return {
       brand: this._brand,
       id: this._id,
       model: this._model,
       pricing: {
-        daily: Number((dailyPrice / search.calculateDays()).toFixed(2)),
-        total: Number(dailyPrice.toFixed(2)),
+        daily: Number((totalPrice / days).toFixed(2)),
+        total: Number(totalPrice.toFixed(2)),
       },
       stock: this.calculateStock(bookings),
     };
