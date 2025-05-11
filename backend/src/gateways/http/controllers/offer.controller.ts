@@ -43,12 +43,9 @@ export class OfferController {
     const errorService = new ErrorService(res);
 
     try {
-      const { params, query } = req;
+      const { params } = req;
 
-      const data = this.offerValidator.validateListCarOffers({
-        ...params,
-        ...query,
-      });
+      const data = this.offerValidator.validateListCarOffers(params);
 
       const listCarsCommand = new ListCarOffersCommand(
         this.app.repositories.bookingRepository,

@@ -57,7 +57,7 @@ export class UserController {
         password,
       });
 
-      res.status(StatusCode.CREATED).send(result);
+      res.status(StatusCode.OK).send(result);
     } catch (error) {
       errorService.handleError(error);
     }

@@ -10,9 +10,7 @@ const validateGetCarOfferSchema = z.object({
 });
 
 const validateListCarOffersSchema = z.object({
-  endDate: z.string().min(1, "End date is required."),
   searchId: z.string().min(1, "Search identification is required."),
-  startDate: z.string().min(1, "Start date is required."),
 });
 
 export class OfferValidator extends Validator {

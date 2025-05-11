@@ -5,9 +5,7 @@ import { Command } from "@/shared/utils/command";
 import { NotFoundError } from "@/shared/utils/errors";
 
 type Params = {
-  endDate: string;
   searchId: string;
-  startDate: string;
 };
 
 type RelatedEntities = {
@@ -77,7 +75,7 @@ export class ListCarOffersCommand extends Command {
   }
 
   private async getRelatedEntities(params: Params): Promise<RelatedEntities> {
-    const { endDate, searchId, startDate } = params;
+    const { searchId } = params;
 
     const [cars, search] = await Promise.all([
       this.carRepository.listAll(),
@@ -89,8 +87,8 @@ export class ListCarOffersCommand extends Command {
     }
 
     const bookings = await this.bookingRepository.listByInterval(
-      startDate,
-      endDate,
+      search.startDate,
+      search.endDate,
     );
 
     return {

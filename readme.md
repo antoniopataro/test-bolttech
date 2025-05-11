@@ -1,4 +1,4 @@
-generated documentation at: https://documenter.getpostman.com
+generated documentation at: https://documenter.getpostman.com/view/24963415/2sB2jAaT2V
 
 #### 1. getting started:
 
