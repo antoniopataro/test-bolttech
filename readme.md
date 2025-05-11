@@ -24,7 +24,13 @@ docker compose up
 
 ---
 
-#### 2. author's note:
+#### 2. demo
+
+https://github.com/user-attachments/assets/e70b7e17-016e-44fc-9274-c2b246d03096
+
+---
+
+#### 3. author's note:
 
 in terms of architecture, i decided to follow the simplest approach i could think of: an api and a frontend ― not even a database (for that, i decided to use in-memory repositories)
 
