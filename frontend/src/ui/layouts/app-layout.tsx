@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
-import { useAuth } from "@/contexts/auth.context";
+import { useUser } from "@/contexts/user.context";
 
 import { Icon } from "../components/icon/icon";
 
@@ -10,7 +10,7 @@ import { components } from "./app-layout.styles";
 export const AppLayout: React.FC = () => {
   const navigate = useNavigate();
 
-  const { logout } = useAuth();
+  const { logout } = useUser();
 
   const handleLogout = useCallback(async () => {
     await logout();

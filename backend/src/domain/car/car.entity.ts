@@ -1,5 +1,6 @@
 import { Seasons } from "@/shared/enums";
 
+import type { BookingEntity } from "../booking";
 import type { SearchEntity, SearchSeasons } from "../search";
 
 import type { CarAttributes, CarOffer } from "./car.types";
@@ -53,6 +54,16 @@ export class CarEntity {
 
   //
 
+  public calculateStock(bookings: BookingEntity[]): number {
+    const bookingsByOfferId = bookings.filter(
+      (booking) => booking.offerId === this._id,
+    );
+
+    const stock = this._stock - bookingsByOfferId.length;
+
+    return stock < 0 ? 0 : stock;
+  }
+
   public decreaseStock(): void {
     if (this._stock === 0) {
       return;
@@ -83,7 +94,11 @@ export class CarEntity {
     return price;
   }
 
-  public toCarOffer(search: SearchEntity): CarOffer {
+  public isAvailable(bookings: BookingEntity[]): boolean {
+    return this.calculateStock(bookings) > 0;
+  }
+
+  public toCarOffer(bookings: BookingEntity[], search: SearchEntity): CarOffer {
     const dailyPrice = this.getDailyPrice(search.calculateSeasons());
 
     return {
@@ -94,7 +109,7 @@ export class CarEntity {
         daily: Number((dailyPrice / search.calculateDays()).toFixed(2)),
         total: Number(dailyPrice.toFixed(2)),
       },
-      stock: this._stock,
+      stock: this.calculateStock(bookings),
     };
   }
 }

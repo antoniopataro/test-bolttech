@@ -4,6 +4,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
+import toast from "react-hot-toast";
 
 import type { CarEntity } from "@/entities/car.entity";
 import type { SearchEntity } from "@/entities/search.entity";
@@ -60,6 +61,8 @@ export const SearchProvider: React.FC<PropsWithChildren<Props>> = ({
         isLoadingSearch: false,
       }));
 
+      toast.error("Failed to get search.");
+
       return null;
     }
 
@@ -91,6 +94,8 @@ export const SearchProvider: React.FC<PropsWithChildren<Props>> = ({
           ...prev,
           isLoadingOffers: false,
         }));
+
+        toast.error("Failed to list car offers.");
 
         return;
       }

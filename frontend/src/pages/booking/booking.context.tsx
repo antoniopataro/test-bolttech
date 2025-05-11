@@ -4,8 +4,8 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
+import toast from "react-hot-toast";
 
-import type { LicenseFormSchema } from "@/components/license-form/license-form.schema";
 import type { CarEntity } from "@/entities/car.entity";
 import { useContextFactory } from "@/shared/utils/use-context.factory";
 
@@ -13,10 +13,9 @@ import { bookingService } from "./booking.service";
 import type { BookingPendencies } from "./booking.types";
 
 type Actions = {
-  book: () => Promise<void>;
+  book: () => Promise<{ success: boolean }>;
   getCarOffer: () => Promise<void>;
   getBookingPendencies: () => Promise<void>;
-  saveLicense: (data: LicenseFormSchema) => Promise<void>;
 };
 
 type Props = {
@@ -29,7 +28,6 @@ type State = {
   isLoading: boolean;
   isLoadingBook: boolean;
   isLoadingBookingPendencies: boolean;
-  isLoadingSaveLicense: boolean;
   pendencies: BookingPendencies | null;
 };
 
@@ -38,7 +36,6 @@ const initialState: State = {
   isLoading: false,
   isLoadingBook: false,
   isLoadingBookingPendencies: false,
-  isLoadingSaveLicense: false,
   pendencies: null,
 };
 
@@ -67,18 +64,30 @@ export const BookingProvider: React.FC<PropsWithChildren<Props>> = ({
     });
 
     if (response.isFailure()) {
+      const error = response.data;
+
       setState((prev) => ({
         ...prev,
         isLoadingBook: false,
       }));
 
-      return;
+      toast.error(error.message || "Failed to book.");
+
+      return {
+        success: false,
+      };
     }
 
     setState((prev) => ({
       ...prev,
       isLoadingBook: false,
     }));
+
+    toast.success("Booking successful.");
+
+    return {
+      success: true,
+    };
   }, [offerId, searchId]);
 
   const getBookingPendencies = useCallback(async () => {
@@ -97,6 +106,8 @@ export const BookingProvider: React.FC<PropsWithChildren<Props>> = ({
         ...prev,
         isLoadingBookingPendencies: false,
       }));
+
+      toast.error("Failed to get booking pendencies.");
 
       return;
     }
@@ -124,6 +135,8 @@ export const BookingProvider: React.FC<PropsWithChildren<Props>> = ({
         isLoading: false,
       }));
 
+      toast.error("Failed to get car offer.");
+
       return;
     }
 
@@ -136,29 +149,6 @@ export const BookingProvider: React.FC<PropsWithChildren<Props>> = ({
     }));
   }, [offerId, searchId]);
 
-  const saveLicense = useCallback(async (data: LicenseFormSchema) => {
-    setState((prev) => ({
-      ...prev,
-      isLoadingSaveLicense: true,
-    }));
-
-    const response = await bookingService.saveLicense(data);
-
-    if (response.isFailure()) {
-      setState((prev) => ({
-        ...prev,
-        isLoadingSaveLicense: false,
-      }));
-
-      return;
-    }
-
-    setState((prev) => ({
-      ...prev,
-      isLoadingSaveLicense: false,
-    }));
-  }, []);
-
   return (
     <BookingContext.Provider
       value={{
@@ -168,7 +158,6 @@ export const BookingProvider: React.FC<PropsWithChildren<Props>> = ({
         getCarOffer,
         offerId,
         searchId,
-        saveLicense,
       }}
     >
       {children}

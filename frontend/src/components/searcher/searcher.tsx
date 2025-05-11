@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/ui/components/button/button";
 import { DatePickerInput } from "@/ui/components/date-picker/date-picker";
-import { Icon } from "@/ui/components/icon/icon";
 
 import { SearcherProvider, useSearcher } from "./searcher.context";
 import type { SearcherSchema } from "./searcher.schema";
@@ -43,9 +42,9 @@ const Component: React.FC<Props> = ({ defaultValues, isLoading }) => {
   return (
     <components.root onSubmit={form.handleSubmit(onSubmit)}>
       <components.header.root>
-        <components.header.title>Search for a car</components.header.title>
+        <components.header.title>Search for a car:</components.header.title>
         <components.header.subtitle>
-          Book your next car rental with ease
+          Book your next car rental with ease.
         </components.header.subtitle>
       </components.header.root>
       <components.fields.root>
@@ -86,8 +85,12 @@ const Component: React.FC<Props> = ({ defaultValues, isLoading }) => {
           )}
         </components.fields.date.root>
       </components.fields.root>
-      <Button disabled={isLoading || isLoadingCreateSearch} type="submit">
-        <Icon use="magnifying-glass" />
+      <Button
+        disabled={isLoading || isLoadingCreateSearch}
+        icon="magnifying-glass"
+        loading={isLoading || isLoadingCreateSearch}
+        type="submit"
+      >
         Search
       </Button>
     </components.root>

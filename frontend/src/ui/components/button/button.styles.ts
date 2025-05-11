@@ -8,6 +8,7 @@ export const components = {
     color: ${({ theme }) => theme.colors.white};
     cursor: pointer;
     display: flex;
+    flex-shrink: 0;
     font-size: 0.8125rem;
     font-weight: 500;
     gap: 8px;

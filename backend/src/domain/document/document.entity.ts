@@ -45,6 +45,14 @@ export class DocumentEntity {
 
   //
 
+  public expiresBefore(endDate: string): boolean {
+    return this._expirationDate < endDate;
+  }
+
+  public hasExpired(): boolean {
+    return this._expirationDate < new Date().toISOString();
+  }
+
   public toDocument(): Document {
     return {
       id: this._id,

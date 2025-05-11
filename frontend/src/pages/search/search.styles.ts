@@ -17,9 +17,7 @@ export const components = {
       font-size: 0.8125rem;
     `,
   },
-  loading: styled.span`
-    color: ${({ theme }) => theme.colors.text.default};
-    font-size: 0.8125rem;
+  loading: styled.div`
     margin: auto;
   `,
   root: styled.div`

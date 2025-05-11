@@ -1,5 +1,5 @@
 import type { LicenseFormSchema } from "@/components/license-form/license-form.schema";
-import type { DocumentType } from "@/shared/enums";
+import { DocumentType } from "@/shared/enums";
 
 export type Document = {
   id: string;
@@ -52,6 +52,10 @@ export class DocumentEntity {
   }
 
   //
+
+  public isLicense(): boolean {
+    return this._type === DocumentType.LICENSE;
+  }
 
   public toLicenseSchema(): LicenseFormSchema {
     return {

@@ -1,3 +1,4 @@
+import type { BookingEntity, IBookingRepository } from "@/domain/booking";
 import type { CarEntity, CarOffer, ICarRepository } from "@/domain/car";
 import type { ISearchRepository, SearchEntity } from "@/domain/search";
 import { Command } from "@/shared/utils/command";
@@ -9,6 +10,7 @@ type Params = {
 };
 
 type RelatedEntities = {
+  bookings: BookingEntity[];
   car: CarEntity;
   search: SearchEntity;
 };
@@ -19,6 +21,7 @@ type Result = {
 
 export class GetCarOfferCommand extends Command {
   constructor(
+    private readonly bookingRepository: IBookingRepository,
     private readonly carRepository: ICarRepository,
     private readonly searchRepository: ISearchRepository,
   ) {
@@ -29,12 +32,14 @@ export class GetCarOfferCommand extends Command {
     try {
       this.logInitiated();
 
-      const { car, search } = await this.getRelatedEntities(params);
+      const { bookings, car, search } = await this.getRelatedEntities(params);
+
+      this.guardAgainstUnavailableCar(bookings, car);
 
       this.logFinished();
 
       return {
-        car: car.toCarOffer(search),
+        car: car.toCarOffer(bookings, search),
       };
     } catch (error) {
       this.logFailed();
@@ -54,14 +59,28 @@ export class GetCarOfferCommand extends Command {
     if (!car) {
       throw new NotFoundError("Offer not found.");
     }
-
     if (!search) {
       throw new NotFoundError("Search not found.");
     }
 
+    const bookings = await this.bookingRepository.listByPeriod({
+      endDate: search.endDate,
+      startDate: search.startDate,
+    });
+
     return {
+      bookings,
       car,
       search,
     };
+  }
+
+  private guardAgainstUnavailableCar(
+    bookings: BookingEntity[],
+    car: CarEntity,
+  ): void {
+    if (!car.isAvailable(bookings)) {
+      throw new NotFoundError("Car not available.");
+    }
   }
 }

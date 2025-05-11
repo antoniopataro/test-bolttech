@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { DocumentType } from "@/shared/enums";
-import { Button } from "@/ui/components/button/button";
 import { DatePickerInput } from "@/ui/components/date-picker/date-picker";
 
 import {
@@ -12,13 +11,21 @@ import {
 import { components } from "./license-form.styles";
 
 type Props = {
+  defaultValues?: LicenseFormSchema;
   isLoading?: boolean;
+  message?: string;
   onSubmit: (data: LicenseFormSchema) => Promise<void>;
 };
 
-export const LicenseForm: React.FC<Props> = ({ isLoading, onSubmit }) => {
+export const LicenseForm: React.FC<Props> = ({
+  defaultValues,
+  isLoading,
+  message,
+  onSubmit,
+}) => {
   const form = useForm<LicenseFormSchema>({
     defaultValues: {
+      ...defaultValues,
       type: DocumentType.LICENSE,
     },
     resolver: zodResolver(licenseFormSchema),
@@ -26,7 +33,14 @@ export const LicenseForm: React.FC<Props> = ({ isLoading, onSubmit }) => {
 
   return (
     <components.root>
-      <components.title>Verify your driver's license</components.title>
+      <components.header.root>
+        <components.header.title>
+          Verify your driver's license:
+        </components.header.title>
+        {message && (
+          <components.header.message>{message}</components.header.message>
+        )}
+      </components.header.root>
       <components.form.root onSubmit={form.handleSubmit(onSubmit)}>
         <components.form.fields.root>
           <components.form.fields.date.root>
@@ -48,9 +62,14 @@ export const LicenseForm: React.FC<Props> = ({ isLoading, onSubmit }) => {
             )}
           </components.form.fields.date.root>
         </components.form.fields.root>
-        <Button disabled={isLoading} type="submit">
+        <components.form.button
+          disabled={isLoading}
+          icon="document-text"
+          loading={isLoading}
+          type="submit"
+        >
           Save
-        </Button>
+        </components.form.button>
       </components.form.root>
     </components.root>
   );

@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 
 import type { App } from "@/app";
 import {
+  ListDocumentsCommand,
   LoginUserCommand,
   RegisterUserCommand,
   SaveDocumentCommand,
@@ -16,6 +17,26 @@ export class UserController {
 
   constructor(private readonly app: App) {
     this.userValidator = new UserValidator();
+  }
+
+  public async listDocuments(req: Request, res: Response) {
+    const errorService = new ErrorService(res);
+
+    try {
+      const { user } = req;
+
+      const listDocumentsCommand = new ListDocumentsCommand(
+        this.app.repositories.documentRepository,
+      );
+
+      const result = await listDocumentsCommand.execute({
+        userId: user?.id,
+      });
+
+      res.status(StatusCode.OK).send(result);
+    } catch (error) {
+      errorService.handleError(error);
+    }
   }
 
   public async login(req: Request, res: Response) {

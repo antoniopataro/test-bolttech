@@ -4,6 +4,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
+import toast from "react-hot-toast";
 
 import type { SearchEntity } from "@/entities/search.entity";
 import { useContextFactory } from "@/shared/utils/use-context.factory";
@@ -43,6 +44,8 @@ export const SearcherProvider: React.FC<PropsWithChildren> = ({ children }) => {
         ...prev,
         isLoading: false,
       }));
+
+      toast.error("Failed to create search.");
 
       return null;
     }

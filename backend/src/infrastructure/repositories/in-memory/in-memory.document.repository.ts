@@ -21,6 +21,10 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
     );
   }
 
+  public async listByUserId(userId: string): Promise<DocumentEntity[]> {
+    return this.documents.filter((document) => document.userId === userId);
+  }
+
   public async upsert(
     data: DocumentCreationAttributes,
   ): Promise<DocumentEntity> {

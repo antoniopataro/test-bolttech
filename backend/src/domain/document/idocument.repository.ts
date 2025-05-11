@@ -8,5 +8,6 @@ export interface IDocumentRepository {
     type: DocumentType,
     userId: string,
   ): Promise<DocumentEntity | null>;
+  listByUserId(userId: string): Promise<DocumentEntity[]>;
   upsert(document: DocumentCreationAttributes): Promise<DocumentEntity>;
 }

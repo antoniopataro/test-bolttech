@@ -7,6 +7,21 @@ export const components = {
     font-size: 0.8125rem;
     width: fit-content;
   `,
+  empty: {
+    link: styled(Link)`
+      color: ${({ theme }) => theme.colors.primary.default};
+      font-size: 0.8125rem;
+
+      text-decoration: underline;
+    `,
+    paragraph: styled.p`
+      margin: auto;
+    `,
+    text: styled.span`
+      color: ${({ theme }) => theme.colors.text.default};
+      font-size: 0.8125rem;
+    `,
+  },
   info: styled.span`
     color: ${({ theme }) => theme.colors.text.default};
     font-size: 0.8125rem;

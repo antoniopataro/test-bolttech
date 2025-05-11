@@ -1,12 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-import { useAuth } from "@/contexts/auth.context";
+import { useUser } from "@/contexts/user.context";
 
 import { AuthRoutes } from "./auth.routes";
 import { ProtectedRoutes } from "./protected.routes";
 
 export const AppRoutes: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useUser();
 
   return (
     <BrowserRouter>

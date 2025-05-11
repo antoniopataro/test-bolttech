@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "@/contexts/auth.context";
+import { useUser } from "@/contexts/user.context";
 import { Button } from "@/ui/components/button/button";
 
 import { loginSchema, type LoginSchema } from "./login.schema";
@@ -12,7 +12,7 @@ import { components } from "./login.styles";
 export const Login: React.FC = () => {
   const navigate = useNavigate();
 
-  const { isLoadingLogin, login } = useAuth();
+  const { isLoadingLogin, login } = useUser();
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -71,7 +71,11 @@ export const Login: React.FC = () => {
             )}
           </components.fields.input.root>
         </components.fields.root>
-        <Button disabled={isLoadingLogin} type="submit">
+        <Button
+          disabled={isLoadingLogin}
+          loading={isLoadingLogin}
+          type="submit"
+        >
           Login
         </Button>
       </components.container>

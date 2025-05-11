@@ -1,3 +1,3 @@
-export type BookingPendencies = {
-  license: boolean;
-};
+export type BookingPendencies = Partial<{
+  license: string;
+}>;

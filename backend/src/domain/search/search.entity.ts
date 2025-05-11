@@ -1,4 +1,4 @@
-import { differenceInDays, eachDayOfInterval } from "date-fns";
+import { addDays, differenceInDays, eachDayOfInterval } from "date-fns";
 
 import { Seasons } from "@/shared/enums";
 import { seasonHelper } from "@/shared/helpers/season.helper";
@@ -35,7 +35,7 @@ export class SearchEntity {
   public calculateSeasons(): SearchSeasons {
     const days = eachDayOfInterval({
       end: this._endDate,
-      start: this._startDate,
+      start: addDays(this._startDate, 1),
     });
 
     const seasons: SearchSeasons = {

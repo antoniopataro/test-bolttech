@@ -1,3 +1,4 @@
+import { areIntervalsOverlapping } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 
 import { BookingEntity } from "@/domain/booking";
@@ -17,11 +18,31 @@ export class InMemoryBookingRepository implements IBookingRepository {
     const booking = new BookingEntity({
       ...attributes,
       id: uuidv4(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
 
     this.bookings.push(booking);
 
     return booking;
+  }
+
+  public async listByPeriod(params: {
+    endDate: string;
+    startDate: string;
+  }): Promise<BookingEntity[]> {
+    return this.bookings.filter((booking) =>
+      areIntervalsOverlapping(
+        {
+          end: params.endDate,
+          start: params.startDate,
+        },
+        {
+          end: booking.endDate,
+          start: booking.startDate,
+        },
+      ),
+    );
   }
 
   public async listByUserId(userId: string): Promise<BookingEntity[]> {

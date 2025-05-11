@@ -20,6 +20,9 @@ export class UserRouter {
   }
 
   private addRoutes(): void {
+    this.router.get("/documents", jwtMiddleware, (req, res) =>
+      this.userController.listDocuments(req, res),
+    );
     this.router.post("/documents", jwtMiddleware, (req, res) =>
       this.userController.saveDocument(req, res),
     );

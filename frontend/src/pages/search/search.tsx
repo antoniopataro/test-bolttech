@@ -4,6 +4,7 @@ import { Listing } from "@/components/listing/listing";
 import { Searcher } from "@/components/searcher/searcher";
 import { SeasonBadges } from "@/components/season-badges/season-badges";
 import { useSearch } from "@/contexts/search.context";
+import { LoadingSpinner } from "@/ui/components/loading-spinner/loading-spinner";
 
 import { components } from "./search.styles";
 
@@ -32,7 +33,9 @@ export const Search: React.FC = () => {
   if (isLoadingSearch) {
     return (
       <components.root>
-        <components.loading>Loading...</components.loading>
+        <components.loading>
+          <LoadingSpinner />
+        </components.loading>
       </components.root>
     );
   }

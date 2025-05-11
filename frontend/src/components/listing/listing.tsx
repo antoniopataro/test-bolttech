@@ -24,7 +24,7 @@ export const Listing: React.FC<Props> = ({ isLoading, offers, search }) => {
     );
   }
 
-  if (!offers) {
+  if (!offers || offers.length === 0) {
     return (
       <components.empty.paragraph>
         <components.empty.text>No cars found. </components.empty.text>

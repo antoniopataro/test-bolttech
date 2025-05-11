@@ -1,3 +1,4 @@
+import type { BookingEntity, IBookingRepository } from "@/domain/booking";
 import type { CarEntity, CarOffer, ICarRepository } from "@/domain/car";
 import type { ISearchRepository, SearchEntity } from "@/domain/search";
 import { Command } from "@/shared/utils/command";
@@ -10,6 +11,7 @@ type Params = {
 };
 
 type RelatedEntities = {
+  bookings: BookingEntity[];
   cars: CarEntity[];
   search: SearchEntity;
 };
@@ -20,6 +22,7 @@ type Result = {
 
 export class ListCarOffersCommand extends Command {
   constructor(
+    private readonly bookingRepository: IBookingRepository,
     private readonly carRepository: ICarRepository,
     private readonly searchRepository: ISearchRepository,
   ) {
@@ -30,11 +33,15 @@ export class ListCarOffersCommand extends Command {
     try {
       this.logInitiated();
 
-      const { cars, search } = await this.getRelatedEntities(params);
+      const { bookings, cars, search } = await this.getRelatedEntities(params);
 
       this.logFinished();
 
-      return this.buildResult(cars, search);
+      return {
+        cars: cars
+          .filter((car) => car.isAvailable(bookings))
+          .map((car) => car.toCarOffer(bookings, search)),
+      };
     } catch (error) {
       this.logFailed();
 
@@ -42,17 +49,11 @@ export class ListCarOffersCommand extends Command {
     }
   }
 
-  private buildResult(cars: CarEntity[], search: SearchEntity): Result {
-    return {
-      cars: cars.map((car) => car.toCarOffer(search)),
-    };
-  }
-
   private async getRelatedEntities(params: Params): Promise<RelatedEntities> {
     const { searchId } = params;
 
     const [cars, search] = await Promise.all([
-      this.carRepository.findAll(),
+      this.carRepository.listAll(),
       this.searchRepository.findById(searchId),
     ]);
 
@@ -60,7 +61,13 @@ export class ListCarOffersCommand extends Command {
       throw new NotFoundError("Search not found.");
     }
 
+    const bookings = await this.bookingRepository.listByPeriod({
+      endDate: params.endDate,
+      startDate: params.startDate,
+    });
+
     return {
+      bookings,
       cars,
       search,
     };

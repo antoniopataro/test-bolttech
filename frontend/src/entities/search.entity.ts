@@ -1,14 +1,10 @@
-import { differenceInDays } from "date-fns";
-
 import type { SearcherSchema } from "@/components/searcher/searcher.schema";
 import type { Seasons } from "@/shared/enums";
 
 export type Search = {
   id: string;
-  period: {
-    endDate: string;
-    startDate: string;
-  };
+  days: number;
+  period: SearchPeriod;
   seasons: SearchSeasons;
   userId: string | null;
 };
@@ -22,12 +18,14 @@ type SearchSeasons = Record<Seasons, { days: number }>;
 
 export class SearchEntity {
   private readonly _id: string;
+  private readonly _days: number;
   private readonly _period: SearchPeriod;
   private readonly _seasons: SearchSeasons;
   private readonly _userId: string | null;
 
   constructor(attributes: Search) {
     this._id = attributes.id;
+    this._days = attributes.days;
     this._period = attributes.period;
     this._seasons = attributes.seasons;
     this._userId = attributes.userId;
@@ -52,7 +50,7 @@ export class SearchEntity {
   //
 
   public getDays(): number {
-    return differenceInDays(this.period.endDate, this.period.startDate);
+    return this._days;
   }
 
   public toSearcherSchema(): SearcherSchema {

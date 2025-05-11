@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "@/contexts/auth.context";
+import { useUser } from "@/contexts/user.context";
 import { Button } from "@/ui/components/button/button";
 
 import { registerSchema, type RegisterSchema } from "./register.schema";
@@ -12,7 +12,7 @@ import { components } from "./register.styles";
 export const Register: React.FC = () => {
   const navigate = useNavigate();
 
-  const { isLoadingRegister, register } = useAuth();
+  const { isLoadingRegister, register } = useUser();
 
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -69,7 +69,11 @@ export const Register: React.FC = () => {
             )}
           </components.fields.input.root>
         </components.fields.root>
-        <Button disabled={isLoadingRegister} type="submit">
+        <Button
+          disabled={isLoadingRegister}
+          loading={isLoadingRegister}
+          type="submit"
+        >
           Register
         </Button>
       </components.container>

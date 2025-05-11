@@ -16,12 +16,18 @@ type RelatedEntities = {
 };
 
 type Result = {
-  pendencies: {
-    license: boolean;
-  };
+  pendencies: Partial<{
+    license: string;
+  }>;
 };
 
 export class GetBookingPendenciesCommand extends Command {
+  private readonly LICENSE_PENDING_MESSAGES = {
+    HAS_EXPIRED: "License has expired.",
+    MISSING: "License document not found.",
+    WILL_EXPIRE: "License will expire before the booking.",
+  };
+
   constructor(
     private readonly documentRepository: IDocumentRepository,
     private readonly searchRepository: ISearchRepository,
@@ -36,15 +42,24 @@ export class GetBookingPendenciesCommand extends Command {
 
       const { license, search } = await this.getRelatedEntities(params);
 
-      try {
-        this.guardAgainstMissingLicense(license);
-
-        this.guardAgainstExpiredLicense(license);
-        this.guardAgainstExpiringLicense(license, search);
-      } catch {
+      if (!license) {
         return {
           pendencies: {
-            license: true,
+            license: this.LICENSE_PENDING_MESSAGES.MISSING,
+          },
+        };
+      }
+      if (license.expiresBefore(search.getEndDate())) {
+        return {
+          pendencies: {
+            license: this.LICENSE_PENDING_MESSAGES.WILL_EXPIRE,
+          },
+        };
+      }
+      if (license.hasExpired()) {
+        return {
+          pendencies: {
+            license: this.LICENSE_PENDING_MESSAGES.HAS_EXPIRED,
           },
         };
       }
@@ -52,9 +67,7 @@ export class GetBookingPendenciesCommand extends Command {
       this.logFinished();
 
       return {
-        pendencies: {
-          license: false,
-        },
+        pendencies: {},
       };
     } catch (error) {
       this.logFailed();

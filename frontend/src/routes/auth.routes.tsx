@@ -1,11 +1,11 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
-import { useAuth } from "@/contexts/auth.context";
+import { useUser } from "@/contexts/user.context";
 import { Login } from "@/pages/login/login";
 import { Register } from "@/pages/register/register";
 
 export const AuthRoutes: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useUser();
 
   if (isAuthenticated) {
     return <Navigate replace to="/" />;

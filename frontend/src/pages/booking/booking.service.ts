@@ -1,6 +1,7 @@
-import type { LicenseFormSchema } from "@/components/license-form/license-form.schema";
+import { AxiosError } from "axios";
+
 import { CarEntity } from "@/entities/car.entity";
-import { DocumentEntity } from "@/entities/document.entity";
+import type { DocumentEntity } from "@/entities/document.entity";
 import { api } from "@/shared/utils/api";
 import type { Either } from "@/shared/utils/either";
 import { failure, success } from "@/shared/utils/either";
@@ -35,6 +36,12 @@ class BookingService {
 
       return success(response.data);
     } catch (error) {
+      if (error instanceof AxiosError) {
+        return failure(
+          new Error(error.response?.data?.error || "Unknown error."),
+        );
+      }
+
       return failure(error as Error);
     }
   }
@@ -64,20 +71,6 @@ class BookingService {
       );
 
       return success(response.data);
-    } catch (error) {
-      return failure(error as Error);
-    }
-  }
-
-  public async saveLicense(
-    data: LicenseFormSchema,
-  ): Promise<Either<Error, SaveLicenseResponse>> {
-    try {
-      const response = await api.post("/users/documents", data);
-
-      return success({
-        license: new DocumentEntity(response.data.license),
-      });
     } catch (error) {
       return failure(error as Error);
     }

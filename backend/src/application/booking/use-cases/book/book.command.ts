@@ -6,7 +6,6 @@ import type { ISearchRepository, SearchEntity } from "@/domain/search";
 import type { IUserRepository, UserEntity } from "@/domain/user";
 import { Command } from "@/shared/utils/command";
 import { ConflictError, NotFoundError } from "@/shared/utils/errors";
-import { TransactionManager } from "@/shared/utils/transaction-manager";
 
 type Params = {
   offerId: string;
@@ -45,18 +44,12 @@ export class BookCommand extends Command {
       this.guardAgainstBookingsOverlap(bookings, search);
       this.guardAgainstUnavailableCar(car);
 
-      const transactionManager = TransactionManager.getInstance();
-
-      await transactionManager.execute(async () => {
-        await this.bookingRepository.create({
-          offerId: car.id,
-          searchId: search.id,
-          userId: user.id,
-          endDate: search.endDate,
-          startDate: search.startDate,
-        });
-
-        await this.carRepository.decreaseStockAtomically(car.id);
+      await this.bookingRepository.create({
+        offerId: car.id,
+        searchId: search.id,
+        userId: user.id,
+        endDate: search.endDate,
+        startDate: search.startDate,
       });
 
       this.logFinished();

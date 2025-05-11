@@ -26,6 +26,7 @@ export class OfferController {
       const data = this.offerValidator.validateGetCarOffer(params);
 
       const getCarOfferCommand = new GetCarOfferCommand(
+        this.app.repositories.bookingRepository,
         this.app.repositories.carRepository,
         this.app.repositories.searchRepository,
       );
@@ -50,6 +51,7 @@ export class OfferController {
       });
 
       const listCarsCommand = new ListCarOffersCommand(
+        this.app.repositories.bookingRepository,
         this.app.repositories.carRepository,
         this.app.repositories.searchRepository,
       );
