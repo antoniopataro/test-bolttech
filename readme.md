@@ -24,7 +24,7 @@ docker compose up
 
 ---
 
-#### 2. demo
+#### 2. demo:
 
 https://github.com/user-attachments/assets/e70b7e17-016e-44fc-9274-c2b246d03096
 
@@ -37,5 +37,7 @@ in terms of architecture, i decided to follow the simplest approach i could thin
 also, since the description didn't mention how to deliver the project, i decided to use docker for that (in development mode, since this is a mock application and it will make reviewing easier)
 
 one little thing i think is worth mentioning about my solution is the default data organization: to avoid going through the trouble of making relational-db-like relationships between entities on an in-memory db, i made the decision of storing 1. car details, and 2. pricing rules on the same entitiy (3. stock information is also debatable, given that this application could scale and, maybe, need different data for different regions) ― the reason i'm pointing that out is because i'd probably not do that in a production environment, where things could scale quick
+
+also, loadings were simulated = 1 second per request
 
 i had fun during this challenge ― starting from scratch on a project, even on a mocked one, was surprisingly not tedious =)
